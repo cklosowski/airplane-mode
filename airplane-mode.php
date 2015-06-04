@@ -283,10 +283,19 @@ if ( ! class_exists( 'Airplane_Mode_Core' ) ) {
 			// pass the entire set of registered data to the action to allow a bypass
 			do_action( 'airplane_mode_style_load', $registered );
 
-			// fetch our open sans if present and set the src inside the object to null
-			if ( ! empty( $registered['open-sans'] ) ) {
-				$open_sans = $registered['open-sans'];
-				$open_sans->src = null;
+			foreach ( $registered as $handle => $registered_item ) {
+				$src       = $registered_item->src;
+				$url_parts = parse_url( $src );
+
+				// It's a local URL, just return;
+				if ( empty( $url_parts['host'] ) ) {
+					continue;
+				}
+
+				// If the URL of the script isn't in the Home URL, set it to null
+				if ( false === strpos( home_url(), $url_parts['host'] ) ) {
+					$registered[ $handle ]->src = null;
+				}
 			}
 
 			// send it back
